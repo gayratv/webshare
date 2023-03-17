@@ -255,6 +255,20 @@ export class Webshare {
       await Webshare.replaceOneProxy(webShareProxyListApiEntity.proxyServer);
     }
   }
+
+  static async copyGoodProxyToProxyList() {
+    const c = createConnectionA();
+    await c.query(`
+        insert into proxyList(
+                          proxyServer,
+                          proxyProvider,
+                          checkedForAvito)
+        select proxyServer,
+               'webshare.io',
+               checkedForAvito
+        from webShareProxyListApi where exist_in_proxyList is null  and checkedForAvito=1;
+    `);
+  }
   //   --- class end
 }
 
@@ -264,6 +278,8 @@ export class Webshare {
 // await Webshare.checkProxyForAvito();
 
 // await Webshare.replaceBadProxy();
+
+await Webshare.copyGoodProxyToProxyList();
 
 process.exit(0);
 
@@ -277,4 +293,7 @@ await Webshare.checkProxyForAvito();
 
 3. Замени плохие proxy
 await Webshare.replaceBadProxy();
+
+4. Скопировать новые прокси в proxyList
+await Webshare.copyGoodProxyToProxyList()
  */
