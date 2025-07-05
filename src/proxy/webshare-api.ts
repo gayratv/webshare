@@ -11,15 +11,14 @@ import { createConnectionA } from '../helpers/mysql-helper.js';
 import { Proxy, webShareProxyListApiEntity } from '../entity/Database.js';
 import { AvitoCheckOneIp } from './proxy-check-one-IP-fetch.js';
 // import { NLog } from 'net-socket-connector';
-import { Logger } from 'tslog';
+import { NLog } from 'tslog-fork';
 import { getIpFromServer } from '../helpers/common.js';
 import * as process from 'process';
 
 const MAX_CHECK_REQUEST = 20;
-const NLog = new Logger({ name: 'myLogger' });
 
 export class Webshare {
-  static log = NLog;
+  static log = NLog.getInstance();
   // static log = NLog.getInstance();
 
   static axiosInstance: AxiosInstance = axios.create({
@@ -111,8 +110,9 @@ export class Webshare {
       }
       const webShareProxyListApiEntity = proxyList[currentIndex];
       const checker = new AvitoCheckOneIp(
-        // NLog.getInstance(),
+        NLog.getInstance(),
         webShareProxyListApiEntity.proxyServer,
+        // @ts-ignore
         webShareProxyListApiEntity.id,
         webShareProxyListApiEntity.idPrimaryKey,
         currentIndex,
@@ -178,7 +178,7 @@ export class Webshare {
 
         // ---
         // const checker = new AvitoCheckOneIp(NLog.getInstance(), newProxy);
-        const checker = new AvitoCheckOneIp(NLog, newProxy);
+        const checker = new AvitoCheckOneIp(undefined, newProxy);
         isNewGood = await checker.checkAvitoIsGood();
         // ---------
 
@@ -278,12 +278,12 @@ export class Webshare {
   //   --- class end
 }
 
-console.log(await Webshare.showProfileData());
+// console.log(await Webshare.showProfileData());
 
 // await Webshare.writeProxyListToDatabase();
 // await Webshare.checkProxyForAvito();
 
-// await Webshare.replaceBadProxy();
+await Webshare.replaceBadProxy();
 
 // await Webshare.copyGoodProxyToProxyList();
 

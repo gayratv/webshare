@@ -35,5 +35,19 @@ interface ShowProfileData {
 }
 ````
 
-```
-```
+## Webshare.writeProxyListToDatabase()
+Асинхронная статическая функция, которая получает список всех прокси-серверов из вашего аккаунта Webshare и сохраняет их в базу данных.
+
+Расположение: src/proxy/webshare-api.ts
+
+Возвращает: Promise<void>
+
+Порядок действий:
+
+Получение списка: Делает запросы к API Webshare (/api/v2/proxy/list/), чтобы получить полный список ваших прокси.
+
+Очистка таблицы: Полностью очищает таблицу webShareProxyListApi в базе данных (truncate table).
+
+Запись в БД: Записывает полученный список прокси в таблицу webShareProxyListApi.
+
+Обновление статусов: Обновляет поля checkedForAvito и exist_in_proxyList, сравнивая данные с уже существующей таблицей proxyList.

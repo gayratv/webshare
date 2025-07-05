@@ -1,17 +1,26 @@
 import axios, { AxiosError, AxiosInstance, AxiosResponse } from 'axios';
-import { ILogger } from 'net-socket-connector';
+// import { ILogger } from 'net-socket-connector';
 import { Proxy } from '../entity/Database.js';
 import { FingerprintGenerator } from 'fingerprint-generator';
+import { NLog, styleWrap } from 'tslog-fork';
 
 export class AvitoCheckOneIp {
   public axiosInstance: AxiosInstance = axios.create();
   constructor(
-    public log: ILogger,
+    public log = NLog.getInstance(),
     serverParam: Proxy,
     public id?: string,
     public idPrimaryKey?: number,
     public currentIndex?: number,
   ) {
+    // ---- Вывод параметров через log.debug ----
+    this.log.debug('--- AvitoCheckOneIp: получены параметры ---');
+    this.log.debug('Параметры прокси (serverParam):', serverParam);
+    this.log.debug('ID прокси (id):', id);
+    this.log.debug('Первичный ключ (idPrimaryKey):', idPrimaryKey);
+    this.log.debug('Текущий индекс (currentIndex):', currentIndex);
+    this.log.debug('-----------------------------------------');
+    // ---------------------------------------------
     this.prepareAxiosDefaults(serverParam);
   }
 
@@ -62,6 +71,7 @@ export class AvitoCheckOneIp {
           // 403 ?
           if (err.response.status === 403) {
             this.log.error(this.log.sw('ERROR : авито заблокировало proxy', 'red'));
+            this.log.error(styleWrap('ERROR : авито заблокировало proxy', 'red'));
 
             return false;
           } else throw err;

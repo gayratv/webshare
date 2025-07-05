@@ -37,7 +37,7 @@
     "generative-bayesian-network": "^2.1.69",
     "mysql2": "^3.14.1",
     "net-socket-connector": "^1.1.1",
-    "tslog": "^4.9.3",
+    "tslog-fork": "^4.8.19",
     "uuid": "^11.1.0"
   }
 }
