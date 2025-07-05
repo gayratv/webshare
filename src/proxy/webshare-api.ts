@@ -10,14 +10,17 @@ import {
 import { createConnectionA } from '../helpers/mysql-helper.js';
 import { Proxy, webShareProxyListApiEntity } from '../entity/Database.js';
 import { AvitoCheckOneIp } from './proxy-check-one-IP-fetch.js';
-import { NLog } from 'net-socket-connector';
+// import { NLog } from 'net-socket-connector';
+import { Logger } from 'tslog';
 import { getIpFromServer } from '../helpers/common.js';
 import * as process from 'process';
 
 const MAX_CHECK_REQUEST = 20;
+const NLog = new Logger({ name: 'myLogger' });
 
 export class Webshare {
-  static log = NLog.getInstance();
+  static log = NLog;
+  // static log = NLog.getInstance();
 
   static axiosInstance: AxiosInstance = axios.create({
     baseURL: 'https://proxy.webshare.io/api/v2',
@@ -108,7 +111,7 @@ export class Webshare {
       }
       const webShareProxyListApiEntity = proxyList[currentIndex];
       const checker = new AvitoCheckOneIp(
-        NLog.getInstance(),
+        // NLog.getInstance(),
         webShareProxyListApiEntity.proxyServer,
         webShareProxyListApiEntity.id,
         webShareProxyListApiEntity.idPrimaryKey,
@@ -174,7 +177,8 @@ export class Webshare {
         newProxy.server = replacedProxy.proxyServer;
 
         // ---
-        const checker = new AvitoCheckOneIp(NLog.getInstance(), newProxy);
+        // const checker = new AvitoCheckOneIp(NLog.getInstance(), newProxy);
+        const checker = new AvitoCheckOneIp(NLog, newProxy);
         isNewGood = await checker.checkAvitoIsGood();
         // ---------
 
@@ -189,7 +193,8 @@ export class Webshare {
           [params],
         ]);
 
-        if (!isNewGood) proxy.server = newProxy.server; // для следующей попытки
+        if (!isNewGood)
+          proxy.server = newProxy.server; // для следующей попытки
         else {
           Webshare.log.info('Новый IP присвоен за ', i, ' итераций');
           break;
@@ -207,7 +212,8 @@ export class Webshare {
   private static async createProxyReplacement(proxyIp: string, dry_run = false) {
     Webshare.log.debug('createProxyReplacement ', proxyIp);
     try {
-      const res = await Webshare.axiosInstance.post<ReplaceProxyResult>('proxy/replace/', {
+      // const res = await Webshare.axiosInstance.post<ReplaceProxyResult>('proxy/replace/', {
+      await Webshare.axiosInstance.post<ReplaceProxyResult>('proxy/replace/', {
         to_replace: { type: 'ip_range', ip_range: `${proxyIp}/32` },
         replace_with: [{ type: 'any', count: 1 }],
         dry_run,
@@ -272,14 +278,14 @@ export class Webshare {
   //   --- class end
 }
 
-// console.log(await Webshare.showProfileData());
+console.log(await Webshare.showProfileData());
 
 // await Webshare.writeProxyListToDatabase();
 // await Webshare.checkProxyForAvito();
 
 // await Webshare.replaceBadProxy();
 
-await Webshare.copyGoodProxyToProxyList();
+// await Webshare.copyGoodProxyToProxyList();
 
 process.exit(0);
 
